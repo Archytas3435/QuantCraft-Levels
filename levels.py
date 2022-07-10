@@ -27,3 +27,12 @@ def level2():
     qc.cx(0, 1)
     qc.measure(1, 0)
     return process(qc)
+
+def level3():
+    num_quantum_registers = 1
+    num_classical_registers = 1
+    qc = QuantumCircuit(num_quantum_registers, num_classical_registers)
+    qc.initialize(get_vals(100), 0)
+    qc.h(0)
+    qc.measure(0, 0)
+    return process(qc)
