@@ -107,13 +107,15 @@ end
 # ╔═╡ 9f48d5d9-320c-4a82-9f88-960668887f55
 begin
 	linear_superposition_representation(ψ::Matrix) = join(["($(ψ[i]))|$(lpad(string(i-1, base=2), Int(log2(length(ψ))), "0"))⟩" for i in 1:length(ψ)], "+")
-	linear_superposition_representation(ψ::NQubit) = join(["($(ψ.coefficients[i]))|$(lpad(string(i-1, base=2), Int(log2(length(ψ.coefficients))), "0"))⟩" for i in 1:length(ψ.coefficients)], "+")
+	linear_superposition_representation(ψ::NQubit) = linear_superposition_representation(ψ.coefficients)
 end
 
 # ╔═╡ 9fdab464-aff2-44ba-b058-ac6fa56293a9
 begin
-	probabilities(ψ::Matrix) = vcat(["|$(lpad(string(i-1, base=2), Int(log2(length(ψ))), "0"))⟩: $(round(abs(ψ[i])^2, digits=5))" for i in 1:length(ψ)]...)
-	probabilities(ψ::NQubit) = vcat(["|$(lpad(string(i-1, base=2), Int(log2(length(ψ.coefficients))), "0"))⟩: $(round(abs(ψ.coefficients[i])^2, digits=5))" for i in 1:length(ψ.coefficients)]...)
+	probabilities(ψ::Matrix) = round.(ψ, digits=5), probabilities_only(ψ)
+	probabilities(ψ::NQubit) = probabilities(ψ.coefficients)
+	probabilities_only(ψ::Matrix) = vcat(["|$(lpad(string(i-1, base=2), Int(log2(length(ψ))), "0"))⟩: $(round(abs(ψ[i])^2, digits=5))" for i in 1:length(ψ)]...)
+	probabilities_only(ψ::NQubit) = probabilities_only(ψ.coefficients)
 end
 
 # ╔═╡ c0a94f4f-d3de-486f-a882-28627cbfce1e
@@ -531,6 +533,363 @@ md"""
 ## World 2 - Other Gates
 """
 
+# ╔═╡ 3f9c7ced-e74d-4b49-a9ee-5222cbcd9359
+md"""
+### Level 2-1: Z gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_0 = \frac{1}{\sqrt{2}}$
+   -  $P(|0⟩) = \frac{1}{2}$
+   -  $α_1 = -\frac{1}{\sqrt{2}}$
+   -  $P(|1⟩) = \frac{1}{2}$
+
+#### Gates
+ -  $Z$: $\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = Z|ψ⟩ = \frac{1}{\sqrt{2}}|0⟩-\frac{1}{\sqrt{2}}|1⟩$
+ -  $Z\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ -\frac{1}{\sqrt{2}} \end{bmatrix}$
+ - Measured states:
+   -  $P(|0⟩) = |\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+   -  $P(|1⟩) = |-\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+
+"""
+
+# ╔═╡ d6b30890-a7f5-42d4-bb6d-c0c27d0f6d36
+Z * NQubit(
+	Qubit(
+		1/sqrt(2), 
+		1/sqrt(2)
+	)
+) |> probabilities
+
+# ╔═╡ 5b6806fc-21bf-4ab4-a5fa-89ddeaf15e19
+md"""
+### Level 2-2: S Gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_0 = \frac{1}{\sqrt{2}}$
+   -  $P(|0⟩) = \frac{1}{2}$
+   -  $α_1 = \frac{1}{\sqrt{2}}i$
+   -  $P(|1⟩) = \frac{1}{2}$
+
+#### Gates
+ -  $S$: $\begin{bmatrix} 1 & 0 \\ 0 & i \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = S|ψ⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}i|1⟩$
+ -  $S\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & i \end{bmatrix}\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}}i \end{bmatrix}$
+ - Measured states:
+   -  $P(|0⟩) = |\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+   -  $P(|1⟩) = |\frac{1}{\sqrt{2}}i|² = \frac{1}{2}$
+
+"""
+
+# ╔═╡ 8b1064b7-ae79-44b1-9bfb-2929eb5c4bf3
+S * NQubit(
+	Qubit(
+		1/sqrt(2), 
+		1/sqrt(2)
+	)
+) |> probabilities
+
+# ╔═╡ f024994f-1fa1-491b-9a53-d74268cf0c43
+md"""
+### Level 2-3: T gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_0 = \frac{1}{\sqrt{2}}$
+   -  $P(|0⟩) = \frac{1}{2}$
+   -  $α_1 = \frac{1+i}{\sqrt{2}}$
+   -  $P(|1⟩) = \frac{1}{2}$
+
+#### Gates
+ -  $T$: $\begin{bmatrix} 1 & 0 \\ 0 & \frac{1+i}{\sqrt{2}} \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = T|ψ⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}i|1⟩$
+ -  $T\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & \frac{1+i}{\sqrt{2}} \end{bmatrix}\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1+i}{2} \end{bmatrix}$
+ - Measured states:
+   -  $P(|0⟩) = |\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+   -  $P(|1⟩) = |\frac{1+i}{2}|² = \frac{1}{2}$
+
+"""
+
+# ╔═╡ 6f615f53-2394-4bcb-a5c3-3a5a9296dc36
+T * NQubit(
+	Qubit(
+		1/sqrt(2), 
+		1/sqrt(2)
+	)
+) |> probabilities
+
+# ╔═╡ 9e6c3ecc-5e35-4c68-888c-be5e1f0aee17
+md"""
+### Level 2-4: Z, S, & T gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_0 = \frac{1}{\sqrt{2}}$
+   -  $P(|0⟩) = \frac{1}{2}$
+   -  $α_1 = \frac{1}{\sqrt{2}}$
+   -  $P(|1⟩) = \frac{1}{2}$
+
+#### Gates
+ -  $Z$: $\begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}$
+ -  $S$: $\begin{bmatrix} 1 & 0 \\ 0 & i \end{bmatrix}$
+ -  $T$: $\begin{bmatrix} 1 & 0 \\ 0 & \frac{i+1}{\sqrt{2}} \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = ZSTT|ψ⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $ZSTT\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & -1 \end{bmatrix}\begin{bmatrix} 1 & 0 \\ 0 & i \end{bmatrix}\begin{bmatrix} 1 & 0 \\ 0 & \frac{1+i}{\sqrt{2}} \end{bmatrix}\begin{bmatrix} 1 & 0 \\ 0 & \frac{1+i}{\sqrt{2}} \end{bmatrix}\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}\begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix} = \begin{bmatrix} \frac{1}{\sqrt{2}} \\ \frac{1}{\sqrt{2}} \end{bmatrix}$
+ - Measured states:
+   -  $P(|0⟩) = |\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+   -  $P(|1⟩) = |\frac{1}{\sqrt{2}}|² = \frac{1}{2}$
+
+"""
+
+# ╔═╡ 396b7acc-fa96-4ab2-ab6f-471171d88f44
+Z * S * T * T * NQubit(
+	Qubit(
+		1/sqrt(2), 
+		1/sqrt(2)
+	)
+) |> probabilities
+
+# ╔═╡ b2e647c4-bfd4-4186-a7ea-86c227f7bc68
+md"""
+### Level 2-5: Pauli-Y gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_0 = 0$
+   -  $P(|0⟩) = 0$
+   -  $α_1 = i$
+   -  $P(|1⟩) = 1$
+
+#### Gates
+ -  $Y$: $\begin{bmatrix} 0 & -i \\ i & 0 \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = 1|0⟩+0|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩ = 1|0⟩+0|1⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = Y|ψ⟩ = 0|0⟩+i|1⟩$
+ -  $Y\begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 & -i \\ i & 0 \end{bmatrix}\begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ i \end{bmatrix}$
+ - Measured states:
+   -  $P(|0⟩) = |0|² = 0$
+   -  $P(|1⟩) = |i|² = 1$
+
+"""
+
+# ╔═╡ 7d6e7b3f-b2dc-4b20-872c-d91f0fc45633
+Y * NQubit(
+	Qubit(
+		1,
+		0
+	)
+) |> probabilities
+
+# ╔═╡ 16527cb5-e6da-4c5a-b629-242eb4788199
+md"""
+### Level 2-6: SWAP gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_{00} = 0$
+   -  $P(|00⟩) = 0$
+   -  $α_{01} = 1$
+   -  $P(|01⟩) = 1$
+   -  $α_{10} = 0$
+   -  $P(|10⟩) = 0$
+   -  $α_{11} = 0$
+   -  $P(|11⟩) = 0$
+
+#### Gates
+ -  $SWAP$: $\begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 0 & 1 \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = 0|0⟩+1|1⟩$
+ -  $|ψ₂⟩ = 1|0⟩+0|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩⊗|ψ₂⟩ = 0|00⟩+0|01⟩+1|10⟩+0|11⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = SWAP|ψ⟩ = 0|00⟩+1|01⟩+0|10⟩+0|11⟩$
+ -  $SWAP\begin{bmatrix} 0 \\ 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 1 \\ 0 & 0 & 0 & 1 \end{bmatrix}\begin{bmatrix} 0 \\ 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \\ 0 \\ 0 \end{bmatrix}$
+ - Measured states:
+   -  $P(|00⟩) = |0|² = 0$
+   -  $P(|01⟩) = |1|² = 1$
+   -  $P(|10⟩) = |0|² = 0$
+   -  $P(|11⟩) = |0|² = 0$
+
+"""
+
+# ╔═╡ b394127e-8f0a-4608-acae-78ed5038baaa
+SWAP * NQubit(
+	Qubit(
+		0, 
+		1
+	),
+	Qubit(
+		1,
+		0
+	)
+) |> probabilities
+
+# ╔═╡ a4f3b799-6be6-4eed-9c2e-2d2d6a4f1d13
+md"""
+### Level 2-7: Toffoli (CCX) gates
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_{000} = 0$
+   -  $P(|000⟩) = 0$
+   -  $α_{001} = 0$
+   -  $P(|001⟩) = 0$
+   -  $α_{010} = 0$
+   -  $P(|010⟩) = 0$
+   -  $α_{011} = 0$
+   -  $P(|011⟩) = 0$
+   -  $α_{100} = 0$
+   -  $P(|100⟩) = 0$
+   -  $α_{101} = 0$
+   -  $P(|101⟩) = 0$
+   -  $α_{110} = 0$
+   -  $P(|110⟩) = 0$
+   -  $α_{111} = 1$
+   -  $P(|111⟩) = 1$
+
+#### Gates
+ -  $CCX = \begin{bmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = 0|0⟩+1|1⟩$
+ -  $|ψ₂⟩ = 0|0⟩+1|1⟩$
+ -  $|ψ₃⟩ = 1|0⟩+0|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩⊗|ψ₂⟩⊗|ψ₃⟩ = 0|000⟩ + 0|001⟩ + 0|010⟩ + 0|011⟩ + 0|100⟩ + 0|101⟩ + 1|110⟩ + 0|111⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = CCX|ψ⟩ = 0|000⟩ + 0|001⟩ + 0|010⟩ + 0|011⟩ + 0|100⟩ + 0|101⟩ + 0|110⟩ + 1|111⟩$
+ -  $CCX\begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \end{bmatrix}\begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 1 \end{bmatrix}$
+ - Measured states:
+   -  $P(|000⟩) = |0|² = 0$
+   -  $P(|001⟩) = |0|² = 0$
+   -  $P(|010⟩) = |0|² = 0$
+   -  $P(|011⟩) = |0|² = 0$
+   -  $P(|100⟩) = |0|² = 0$
+   -  $P(|101⟩) = |0|² = 0$
+   -  $P(|110⟩) = |0|² = 0$
+   -  $P(|111⟩) = |1|² = 1$
+
+"""
+
+# ╔═╡ f2962d2e-be93-4749-83db-6d3315c6f43b
+CCX * NQubit(
+	Qubit(
+		0, 
+		1
+	),
+	Qubit(
+		0,
+		1
+	),
+	Qubit(
+		1,
+		0
+	)
+) |> probabilities
+
+# ╔═╡ fbbd36fd-c56f-457e-8ea8-03a6c41472c1
+md"""
+### Level 2-8: Toffoli (CCX) gates II
+
+#### Instructions
+ - Place the Qubit on the circuit.
+ - Goal:
+   -  $α_{000} = \frac{1}{2}$
+   -  $P(|000⟩) = \frac{1}{4}$
+   -  $α_{001} = 0$
+   -  $P(|001⟩) = 0$
+   -  $α_{010} = \frac{1}{2}$
+   -  $P(|010⟩) = \frac{1}{4}$
+   -  $α_{011} = 0$
+   -  $P(|011⟩) = 0$
+   -  $α_{100} = \frac{1}{2}$
+   -  $P(|100⟩) = \frac{1}{4}$
+   -  $α_{101} = 0$
+   -  $P(|101⟩) = 0$
+   -  $α_{110} = 0$
+   -  $P(|110⟩) = 0$
+   -  $α_{111} = \frac{1}{2}$
+   -  $P(|111⟩) = \frac{1}{4}$
+
+#### Gates
+ -  $CCX = \begin{bmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \end{bmatrix}$
+
+#### Qubits
+ -  $|ψ₁⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ₂⟩ = \frac{1}{\sqrt{2}}|0⟩+\frac{1}{\sqrt{2}}|1⟩$
+ -  $|ψ₃⟩ = 1|0⟩+0|1⟩$
+ -  $|ψ⟩ = |ψ₁⟩⊗|ψ₂⟩⊗|ψ₃⟩ = \frac{1}{2}|000⟩ + 0|001⟩ + \frac{1}{2}|010⟩ + \frac{1}{2}|011⟩ + 0|100⟩ + \frac{1}{2}|101⟩ + 0|110⟩ + \frac{1}{2}|111⟩$
+
+#### Solution
+ -  $|ψ^′⟩ = CCX|ψ⟩ = 0|000⟩ + 0|001⟩ + 0|010⟩ + 0|011⟩ + 0|100⟩ + 0|101⟩ + 0|110⟩ + 1|111⟩$
+ -  $CCX\begin{bmatrix} \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \end{bmatrix}\begin{bmatrix} \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \end{bmatrix} = \begin{bmatrix} \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ \frac{1}{2} \\ 0 \\ 0 \\ \frac{1}{2} \end{bmatrix}$
+ - Measured states:
+   -  $P(|000⟩) = |\frac{1}{2}|² = \frac{1}{4}$
+   -  $P(|001⟩) = |0|² = 0$
+   -  $P(|010⟩) = |\frac{1}{2}|² = \frac{1}{4}$
+   -  $P(|011⟩) = |0|² = 0$
+   -  $P(|100⟩) = |\frac{1}{2}|² = \frac{1}{4}$
+   -  $P(|101⟩) = |0|² = 0$
+   -  $P(|110⟩) = |0|² = 0$
+   -  $P(|111⟩) = |\frac{1}{2}|² = \frac{1}{4}$
+
+"""
+
+# ╔═╡ 6014456c-d8f7-4555-8784-658c9929f26d
+CCX * NQubit(
+	Qubit(
+		1/sqrt(2), 
+		1/sqrt(2)
+	),
+	Qubit(
+		1/sqrt(2),
+		1/sqrt(2)
+	),
+	Qubit(
+		1,
+		0
+	)
+) |> probabilities
+
 # ╔═╡ 449c2878-7f8b-47a2-8acb-dbfebf818ac8
 md"""
 ## World 3 - Oracles
@@ -637,6 +996,22 @@ uuid = "8e850b90-86db-534c-a0d3-1478176c7d93"
 # ╟─b2ceb23e-8eaa-4fd3-87fe-94d71978cfc0
 # ╠═7b7d106f-871b-4354-8f58-f64818ab81f8
 # ╟─9e04d441-f2a5-41e7-8e78-2a9ef8044e0b
+# ╟─3f9c7ced-e74d-4b49-a9ee-5222cbcd9359
+# ╠═d6b30890-a7f5-42d4-bb6d-c0c27d0f6d36
+# ╟─5b6806fc-21bf-4ab4-a5fa-89ddeaf15e19
+# ╠═8b1064b7-ae79-44b1-9bfb-2929eb5c4bf3
+# ╟─f024994f-1fa1-491b-9a53-d74268cf0c43
+# ╠═6f615f53-2394-4bcb-a5c3-3a5a9296dc36
+# ╟─9e6c3ecc-5e35-4c68-888c-be5e1f0aee17
+# ╠═396b7acc-fa96-4ab2-ab6f-471171d88f44
+# ╟─b2e647c4-bfd4-4186-a7ea-86c227f7bc68
+# ╠═7d6e7b3f-b2dc-4b20-872c-d91f0fc45633
+# ╟─16527cb5-e6da-4c5a-b629-242eb4788199
+# ╠═b394127e-8f0a-4608-acae-78ed5038baaa
+# ╟─a4f3b799-6be6-4eed-9c2e-2d2d6a4f1d13
+# ╠═f2962d2e-be93-4749-83db-6d3315c6f43b
+# ╟─fbbd36fd-c56f-457e-8ea8-03a6c41472c1
+# ╠═6014456c-d8f7-4555-8784-658c9929f26d
 # ╟─449c2878-7f8b-47a2-8acb-dbfebf818ac8
 # ╟─c666985a-b56b-454e-94fa-07383ccb9a5b
 # ╟─dd337f85-a24b-4408-b38b-7632a592cc61
